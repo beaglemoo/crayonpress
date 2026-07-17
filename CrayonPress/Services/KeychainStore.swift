@@ -10,6 +10,11 @@ enum KeychainStore {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
+            // Data-protection keychain: access is granted by app identity
+            // (entitlements), not the code signature of the build that wrote
+            // the item - so Debug and Release builds share the key without
+            // password prompts.
+            kSecUseDataProtectionKeychain as String: true,
         ]
     }
 
