@@ -115,8 +115,8 @@ struct OpenRouterClient: Sendable {
         request.timeoutInterval = 180
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("https://github.com/beaglemoo/colourme", forHTTPHeaderField: "HTTP-Referer")
-        request.setValue("ColourMe", forHTTPHeaderField: "X-Title")
+        request.setValue("https://github.com/beaglemoo/crayonpress", forHTTPHeaderField: "HTTP-Referer")
+        request.setValue("CrayonPress", forHTTPHeaderField: "X-Title")
         return request
     }
 

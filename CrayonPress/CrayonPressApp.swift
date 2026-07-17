@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ColourMeApp: App {
+struct CrayonPressApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

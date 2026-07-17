@@ -6,6 +6,7 @@ import Foundation
 enum BookStore {
     static var booksDirectory: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        // Pre-rename path kept so existing archived books remain visible.
         return base.appending(path: "ColourMe/Books")
     }
 

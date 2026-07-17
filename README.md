@@ -1,14 +1,14 @@
-# ColourMe
+# CrayonPress
 
 A small native macOS app that generates printable children's colouring books using AI image models via OpenRouter. Pick a theme, page count, and complexity level, preview the pages, regenerate any you don't like, then export a multi-page A4 PDF with a cover page - ready to print and staple.
 
 ## Why
 
-Chat assistants tend to cram a whole colouring book onto a single image. ColourMe generates one proper line-art image per page and lays them out as individual A4 pages in a single PDF.
+Chat assistants tend to cram a whole colouring book onto a single image. CrayonPress generates one proper line-art image per page and lays them out as individual A4 pages in a single PDF.
 
 ## Download
 
-Grab the latest signed and notarized build from the [Releases page](https://github.com/beaglemoo/colourme/releases) - unzip, drag ColourMe.app to Applications, and you're done. You'll need your own [OpenRouter API key](https://openrouter.ai/keys), pasted once into the app's Settings. The default model costs about a cent per page at Standard quality, and a third of that at Draft.
+Grab the latest signed and notarized build from the [Releases page](https://github.com/beaglemoo/crayonpress/releases) - unzip, drag CrayonPress.app to Applications, and you're done. You'll need your own [OpenRouter API key](https://openrouter.ai/keys), pasted once into the app's Settings. The default model costs about a cent per page at Standard quality, and a third of that at Draft.
 
 ## Requirements
 
@@ -23,10 +23,10 @@ To build from source:
 ## Setup
 
 ```
-git clone git@github.com:beaglemoo/colourme.git
-cd colourme
+git clone git@github.com:beaglemoo/crayonpress.git
+cd crayonpress
 xcodegen generate
-open ColourMe.xcodeproj
+open CrayonPress.xcodeproj
 ```
 
 Build and run (Cmd+R), then open Settings (Cmd+,) and paste your OpenRouter API key. The key is stored only in the macOS Keychain - it never touches the repository, UserDefaults, or any file on disk.

@@ -7,7 +7,7 @@ struct BookFormView: View {
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 6) {
-                Text("ColourMe")
+                Text("CrayonPress")
                     .font(.system(size: 40, weight: .bold, design: .rounded))
                 Text("Make a printable colouring book in minutes")
                     .font(.title3)
