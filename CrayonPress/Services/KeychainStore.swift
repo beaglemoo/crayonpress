@@ -6,15 +6,14 @@ enum KeychainStore {
     private static let account = "api-key"
 
     private static var baseQuery: [String: Any] {
+        // Login keychain, not the data-protection keychain: the latter
+        // requires an application-identifier entitlement that Developer ID
+        // distribution signing does not carry, making saves fail with
+        // errSecMissingEntitlement.
         [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
-            // Data-protection keychain: access is granted by app identity
-            // (entitlements), not the code signature of the build that wrote
-            // the item - so Debug and Release builds share the key without
-            // password prompts.
-            kSecUseDataProtectionKeychain as String: true,
         ]
     }
 

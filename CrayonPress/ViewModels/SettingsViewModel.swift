@@ -31,6 +31,7 @@ final class SettingsViewModel {
     func testConnection() async {
         // The client reads the key from the Keychain, so persist the field first.
         saveKey()
+        if case .failure = testState { return }
         testState = .testing
         do {
             let models = try await client.listImageModels()
