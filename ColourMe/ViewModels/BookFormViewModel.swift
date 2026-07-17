@@ -15,7 +15,7 @@ final class BookFormViewModel {
     var stage: Stage = .form
     var theme = ""
     var pageCount = 8
-    var complexity: ComplexityLevel = .youngChild
+    var complexity: ComplexityLevel = .standard
     var childName = ""
     var selectedModelID = UserDefaults.standard.string(forKey: "defaultModelID") ?? Constants.defaultImageModelID
     var availableModels: [ImageModel] = []
