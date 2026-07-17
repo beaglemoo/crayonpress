@@ -1,0 +1,16 @@
+# Xcode project is generated from project.yml via xcodegen
+*.xcodeproj
+
+# Xcode
+xcuserdata/
+DerivedData/
+.build/
+*.swiftpm
+build/
+
+# macOS
+.DS_Store
+
+# Secrets - never commit
+*.env
+.env.local
