@@ -96,5 +96,8 @@ struct BookFormView: View {
         }
         .padding(40)
         .task { await viewModel.loadModels() }
+        .onChange(of: viewModel.hasAPIKey) {
+            Task { await viewModel.loadModels() }
+        }
     }
 }
