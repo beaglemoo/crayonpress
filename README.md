@@ -8,7 +8,7 @@ Chat assistants tend to cram a whole colouring book onto a single image. ColourM
 
 ## Download
 
-Grab the latest signed and notarized build from the [Releases page](https://github.com/beaglemoo/colourme/releases) - unzip, drag ColourMe.app to Applications, and you're done. You'll need your own [OpenRouter API key](https://openrouter.ai/keys) (pasted once into the app's Settings; the default model costs about 4 cents per page).
+Grab the latest signed and notarized build from the [Releases page](https://github.com/beaglemoo/colourme/releases) - unzip, drag ColourMe.app to Applications, and you're done. You'll need your own [OpenRouter API key](https://openrouter.ai/keys), pasted once into the app's Settings. The default model costs about a cent per page at Standard quality, and a third of that at Draft.
 
 ## Requirements
 
@@ -40,7 +40,9 @@ Build and run (Cmd+R), then open Settings (Cmd+,) and paste your OpenRouter API 
 5. Generate, review the preview grid, regenerate any page you don't like
 6. Export the PDF or print directly at A4
 
-Every generated book is archived automatically in the app's Library, where you can reopen, re-export, print, or move pages between books. Estimates are refined from your actual billed costs after the first generation with any model.
+Every generated book is archived automatically in the app's Library, where you can reopen, re-export, print, delete, or move pages between books. "New from Pages" composes a brand-new book from any pages across your archive at no cost. Estimates are refined from your actual billed costs after the first generation with any model.
+
+The Diagnostics menu opens an Activity Log (Cmd+L) showing every OpenRouter request with its outcome, cost, and duration, plus your key's remaining daily budget and account credits - the first place to look if generation fails or credits run out.
 
 ## Architecture
 
@@ -49,8 +51,10 @@ SwiftUI app using the macOS 26 Liquid Glass design language. The Xcode project i
 - `Services/OpenRouterClient.swift` - async URLSession wrapper for the OpenRouter API: image model discovery, page subject brainstorming via a cheap text model, and image generation (`POST /api/v1/images`)
 - `Services/BookGenerator.swift` - orchestrates a book: generates N distinct page subjects for the theme, then renders pages concurrently in small batches; per-page failures never abort the book
 - `Services/PDFBuilder.swift` - composes the A4 PDF with Core Graphics: cover page with the title, then one aspect-fitted image per page
+- `Services/BookStore.swift` - the on-disk archive in Application Support: one folder per book with page PNGs and metadata JSON
 - `Services/KeychainStore.swift` - API key storage
-- `Views/` - form, generation progress, preview grid, and settings screens
+- `Support/ActivityLog.swift` / `Support/PriceMemory.swift` - session request log and learned per-model page costs
+- `Views/` - form, generation progress, preview grid, library, compose, activity log, and settings screens
 
 The app is sandboxed with network access and user-selected file write (for the PDF save panel) as its only entitlements.
 
