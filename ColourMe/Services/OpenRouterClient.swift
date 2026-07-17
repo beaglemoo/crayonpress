@@ -4,11 +4,35 @@ struct OpenRouterClient: Sendable {
     private let session = URLSession.shared
 
     func listImageModels() async throws -> [ImageModel] {
+        async let pricingTask = try? listModelPricing()
         let request = try makeRequest(path: "images/models", method: "GET")
         let response: ImageModelsResponse = try await send(request)
+        let pricing = await pricingTask ?? [:]
         return response.data
-            .map { ImageModel(id: $0.id, name: $0.name, supportedParameters: $0.supportedParameters ?? []) }
+            .map {
+                ImageModel(
+                    id: $0.id,
+                    name: $0.name,
+                    supportedParameters: $0.supportedParameters ?? [],
+                    pricePerImageToken: pricing[$0.id]
+                )
+            }
             .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+    }
+
+    /// Pricing only exists on the general models endpoint, not images/models.
+    func listModelPricing() async throws -> [String: Double] {
+        let request = try makeRequest(
+            path: "models",
+            method: "GET",
+            queryItems: [URLQueryItem(name: "output_modalities", value: "image")]
+        )
+        let response: ModelsPricingResponse = try await send(request)
+        return response.data.reduce(into: [:]) { result, item in
+            if let raw = item.pricing?.imageOutput, let price = Double(raw), price > 0 {
+                result[item.id] = price
+            }
+        }
     }
 
     func generatePageSubjects(theme: String, count: Int, complexity: ComplexityLevel) async throws -> [String] {
@@ -33,7 +57,12 @@ struct OpenRouterClient: Sendable {
         return Array(subjects.prefix(count))
     }
 
-    func generateImage(model: ImageModel, prompt: String, seed: Int?) async throws -> Data {
+    struct GeneratedImage: Sendable {
+        let data: Data
+        let cost: Double?
+    }
+
+    func generateImage(model: ImageModel, prompt: String, seed: Int?) async throws -> GeneratedImage {
         var body = ImagesRequestBody(model: model.id, prompt: prompt)
         if model.supports("output_format") { body.outputFormat = "png" }
         if model.supports("aspect_ratio") { body.aspectRatio = Constants.imageAspectRatio }
@@ -46,14 +75,18 @@ struct OpenRouterClient: Sendable {
               let data = Data(base64Encoded: b64, options: .ignoreUnknownCharacters) else {
             throw AppError.emptyImageData
         }
-        return data
+        return GeneratedImage(data: data, cost: response.usage?.cost)
     }
 
     // MARK: - Plumbing
 
-    private func makeRequest(path: String, method: String) throws -> URLRequest {
+    private func makeRequest(path: String, method: String, queryItems: [URLQueryItem]? = nil) throws -> URLRequest {
         guard let key = KeychainStore.load(), !key.isEmpty else { throw AppError.missingAPIKey }
-        var request = URLRequest(url: Constants.openRouterBaseURL.appending(path: path))
+        var url = Constants.openRouterBaseURL.appending(path: path)
+        if let queryItems {
+            url.append(queryItems: queryItems)
+        }
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.timeoutInterval = 180
         request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")

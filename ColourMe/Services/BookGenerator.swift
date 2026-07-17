@@ -5,6 +5,7 @@ import Observation
 @Observable
 final class BookGenerator {
     private(set) var pages: [GeneratedPage] = []
+    private(set) var totalCost: Double = 0
     private let client = OpenRouterClient()
     private var spec: BookSpec?
     private var model: ImageModel?
@@ -20,6 +21,7 @@ final class BookGenerator {
     func generate(spec: BookSpec, model: ImageModel) async {
         self.spec = spec
         self.model = model
+        totalCost = 0
 
         var subjects = (try? await client.generatePageSubjects(
             theme: spec.theme, count: spec.pageCount, complexity: spec.complexity
@@ -53,8 +55,9 @@ final class BookGenerator {
         pages[index].status = .generating
         let prompt = PromptBuilder.imagePrompt(subject: pages[index].subject, complexity: spec.complexity)
         do {
-            let data = try await client.generateImage(model: model, prompt: prompt, seed: seed)
-            pages[index].status = .done(data)
+            let result = try await client.generateImage(model: model, prompt: prompt, seed: seed)
+            pages[index].status = .done(result.data)
+            totalCost += result.cost ?? 0
         } catch {
             pages[index].status = .failed(error.localizedDescription)
         }

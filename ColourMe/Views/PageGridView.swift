@@ -15,6 +15,13 @@ struct PageGridView: View {
                 }
             }
             .padding(28)
+
+            if viewModel.generator.totalCost > 0 {
+                Text(String(format: "This book cost $%.2f to generate", viewModel.generator.totalCost))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 20)
+            }
         }
         .toolbar {
             ToolbarItem(placement: .navigation) {

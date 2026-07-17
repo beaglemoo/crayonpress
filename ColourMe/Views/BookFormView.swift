@@ -65,16 +65,28 @@ struct BookFormView: View {
                     }
 
                     LabeledContent("Model") {
-                        Picker("", selection: $viewModel.selectedModelID) {
-                            if viewModel.availableModels.isEmpty {
-                                Text(viewModel.selectedModelID).tag(viewModel.selectedModelID)
-                            } else {
-                                ForEach(viewModel.availableModels) { model in
-                                    Text(model.displayName).tag(model.id)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Picker("", selection: $viewModel.selectedModelID) {
+                                if viewModel.availableModels.isEmpty {
+                                    Text(viewModel.selectedModelID).tag(viewModel.selectedModelID)
+                                } else {
+                                    ForEach(viewModel.availableModels) { model in
+                                        if let price = model.priceLabel {
+                                            Text("\(model.displayName)  \(price)").tag(model.id)
+                                        } else {
+                                            Text(model.displayName).tag(model.id)
+                                        }
+                                    }
                                 }
                             }
+                            .labelsHidden()
+
+                            if let estimate = viewModel.estimatedBookCostLabel {
+                                Text(estimate)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                        .labelsHidden()
                         .frame(maxWidth: 320)
                     }
                 }

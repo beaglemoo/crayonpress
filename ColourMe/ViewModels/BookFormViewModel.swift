@@ -46,6 +46,11 @@ final class BookFormViewModel {
         availableModels.first { $0.id == selectedModelID } ?? .fallback(id: selectedModelID)
     }
 
+    var estimatedBookCostLabel: String? {
+        guard let perPage = selectedModel.estimatedPricePerPage else { return nil }
+        return String(format: "Estimated cost: ~$%.2f for %d pages", perPage * Double(pageCount), pageCount)
+    }
+
     func loadModels() async {
         guard hasAPIKey, availableModels.isEmpty else { return }
         do {

@@ -29,6 +29,30 @@ struct ImagesResponse: Decodable {
         }
     }
 
+    struct Usage: Decodable {
+        let cost: Double?
+    }
+
+    let data: [Item]
+    let usage: Usage?
+}
+
+/// From GET /models?output_modalities=image - the only endpoint that carries
+/// pricing. Values arrive as JSON strings.
+struct ModelsPricingResponse: Decodable {
+    struct Item: Decodable {
+        struct Pricing: Decodable {
+            let imageOutput: String?
+
+            enum CodingKeys: String, CodingKey {
+                case imageOutput = "image_output"
+            }
+        }
+
+        let id: String
+        let pricing: Pricing?
+    }
+
     let data: [Item]
 }
 
