@@ -6,9 +6,16 @@ A small native macOS app that generates printable children's colouring books usi
 
 Chat assistants tend to cram a whole colouring book onto a single image. ColourMe generates one proper line-art image per page and lays them out as individual A4 pages in a single PDF.
 
+## Download
+
+Grab the latest signed and notarized build from the [Releases page](https://github.com/beaglemoo/colourme/releases) - unzip, drag ColourMe.app to Applications, and you're done. You'll need your own [OpenRouter API key](https://openrouter.ai/keys) (pasted once into the app's Settings; the default model costs about 4 cents per page).
+
 ## Requirements
 
-- macOS 26 (Tahoe) or later
+To run: macOS 26 (Tahoe) or later.
+
+To build from source:
+
 - Xcode 26.6 or later
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 - An [OpenRouter](https://openrouter.ai/keys) API key
@@ -44,3 +51,7 @@ SwiftUI app using the macOS 26 Liquid Glass design language. The Xcode project i
 - `Views/` - form, generation progress, preview grid, and settings screens
 
 The app is sandboxed with network access and user-selected file write (for the PDF save panel) as its only entitlements.
+
+## Licence
+
+MIT - see [LICENSE](LICENSE).
