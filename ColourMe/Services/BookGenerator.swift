@@ -7,6 +7,7 @@ final class BookGenerator {
     private(set) var pages: [GeneratedPage] = []
     private(set) var coverImage: Data?
     private(set) var totalCost: Double = 0
+    private var outOfCredits = false
     private let client = OpenRouterClient()
     private var spec: BookSpec?
     private var model: ImageModel?
@@ -24,6 +25,7 @@ final class BookGenerator {
         self.model = model
         totalCost = 0
         coverImage = nil
+        outOfCredits = false
 
         var subjects = (try? await client.generatePageSubjects(
             theme: spec.theme, count: spec.pageCount, complexity: spec.complexity
@@ -43,7 +45,7 @@ final class BookGenerator {
             Array(pages.indices[$0..<min($0 + Constants.maxConcurrentRequests, pages.count)])
         }
         for batch in batches {
-            if Task.isCancelled { break }
+            if Task.isCancelled || outOfCredits { break }
             await withTaskGroup(of: Void.self) { group in
                 for index in batch {
                     group.addTask { await self.generatePage(at: index, seed: nil) }
@@ -85,6 +87,10 @@ final class BookGenerator {
             pages[index].status = .pending
         } catch let error as URLError where error.code == .cancelled {
             pages[index].status = .pending
+        } catch AppError.insufficientCredits {
+            // Stop burning identical failures on every remaining page.
+            outOfCredits = true
+            pages[index].status = .failed(AppError.insufficientCredits.localizedDescription)
         } catch {
             pages[index].status = .failed(error.localizedDescription)
         }

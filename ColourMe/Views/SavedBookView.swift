@@ -8,6 +8,18 @@ struct SavedBookView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 24) {
+                if let cover = viewModel.openedBookCover, let nsImage = NSImage(data: cover) {
+                    VStack(spacing: 8) {
+                        Image(nsImage: nsImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(.rect(cornerRadius: 12))
+                            .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                        Text("Cover")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 ForEach(Array(viewModel.openedBookImages.enumerated()), id: \.offset) { index, imageData in
                     VStack(spacing: 8) {
                         if let nsImage = NSImage(data: imageData) {

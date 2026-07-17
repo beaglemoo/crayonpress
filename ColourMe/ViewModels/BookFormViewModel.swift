@@ -13,6 +13,7 @@ final class BookFormViewModel {
         case preview
         case library
         case savedBook
+        case composing
     }
 
     var stage: Stage = .form
@@ -31,6 +32,7 @@ final class BookFormViewModel {
     var savedBooks: [SavedBook] = []
     var openedBook: SavedBook?
     var openedBookImages: [Data] = []
+    var openedBookCover: Data?
 
     let generator = BookGenerator()
     private let client = OpenRouterClient()
@@ -69,8 +71,23 @@ final class BookFormViewModel {
         return String(format: "%@: ~$%.2f for %d pages", prefix, perPage * Double(billedPages), pageCount)
     }
 
+    var keyBudgetLabel: String? {
+        guard let status = ActivityLog.shared.keyStatus, let remaining = status.limitRemaining else { return nil }
+        return String(format: "Key budget left today: $%.2f", remaining)
+    }
+
+    var keyBudgetLow: Bool {
+        guard let status = ActivityLog.shared.keyStatus, let remaining = status.limitRemaining,
+              let perPage = selectedModel.estimatedPricePerPage(tier: qualityTier) else { return false }
+        return remaining < perPage * Double(pageCount + (illustratedCover ? 1 : 0))
+    }
+
     func loadModels() async {
-        guard hasAPIKey, availableModels.isEmpty else { return }
+        guard hasAPIKey else { return }
+        if ActivityLog.shared.keyStatus == nil {
+            ActivityLog.shared.keyStatus = try? await client.keyStatus()
+        }
+        guard availableModels.isEmpty else { return }
         do {
             var models = try await client.listImageModels()
             // Keep the current selection valid even if it is not in the list,
@@ -146,12 +163,65 @@ final class BookFormViewModel {
     func openSavedBook(_ book: SavedBook) {
         openedBook = book
         openedBookImages = BookStore.pageImages(for: book)
+        openedBookCover = BookStore.coverImage(for: book)
         stage = .savedBook
     }
 
     func deleteSavedBook(_ book: SavedBook) {
         try? BookStore.delete(book)
         savedBooks = BookStore.list()
+    }
+
+    // MARK: - Compose
+
+    struct ComposePage: Identifiable {
+        let id: String
+        let bookTitle: String
+        let subject: String
+        let image: Data
+    }
+
+    var composePages: [ComposePage] = []
+    var composeSelection: [String] = []
+    var composeTheme = ""
+    var composeChildName = ""
+
+    func openCompose() {
+        composePages = BookStore.list().flatMap { book in
+            zip(book.subjects, BookStore.pageImages(for: book)).enumerated().map { index, pair in
+                ComposePage(id: "\(book.id.uuidString)-\(index)", bookTitle: book.title, subject: pair.0, image: pair.1)
+            }
+        }
+        composeSelection = []
+        composeTheme = ""
+        composeChildName = ""
+        stage = .composing
+    }
+
+    func toggleComposeSelection(_ id: String) {
+        if let index = composeSelection.firstIndex(of: id) {
+            composeSelection.remove(at: index)
+        } else {
+            composeSelection.append(id)
+        }
+    }
+
+    func createComposedBook() {
+        let pagesByID = Dictionary(uniqueKeysWithValues: composePages.map { ($0.id, $0) })
+        let picked = composeSelection.compactMap { pagesByID[$0] }.map { ($0.subject, $0.image) }
+        guard !picked.isEmpty else { return }
+        do {
+            try BookStore.compose(
+                theme: composeTheme.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    ? "My Favourites" : composeTheme.trimmingCharacters(in: .whitespacesAndNewlines),
+                childName: composeChildName.isEmpty ? nil : composeChildName,
+                pages: picked
+            )
+            composePages = []
+            openLibrary()
+        } catch {
+            errorMessage = "Could not create the book: \(error.localizedDescription)"
+        }
     }
 
     var moveTargets: [SavedBook] {

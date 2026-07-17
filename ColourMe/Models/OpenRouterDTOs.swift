@@ -133,6 +133,38 @@ struct ChatResponse: Decodable {
     let choices: [Choice]
 }
 
+// MARK: - Key status and credits
+
+struct KeyResponse: Decodable {
+    struct Body: Decodable {
+        let limit: Double?
+        let limitRemaining: Double?
+        let usageDaily: Double?
+
+        enum CodingKeys: String, CodingKey {
+            case limit
+            case limitRemaining = "limit_remaining"
+            case usageDaily = "usage_daily"
+        }
+    }
+
+    let data: Body
+}
+
+struct CreditsResponse: Decodable {
+    struct Body: Decodable {
+        let totalCredits: Double?
+        let totalUsage: Double?
+
+        enum CodingKeys: String, CodingKey {
+            case totalCredits = "total_credits"
+            case totalUsage = "total_usage"
+        }
+    }
+
+    let data: Body
+}
+
 // MARK: - Error envelope
 
 struct OpenRouterErrorEnvelope: Decodable {

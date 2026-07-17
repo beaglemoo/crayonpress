@@ -72,6 +72,14 @@ struct LibraryView: View {
             }
             ToolbarItem(placement: .automatic) {
                 Button {
+                    viewModel.openCompose()
+                } label: {
+                    Label("New from Pages", systemImage: "plus.rectangle.on.rectangle")
+                }
+                .disabled(viewModel.savedBooks.isEmpty)
+            }
+            ToolbarItem(placement: .automatic) {
+                Button {
                     viewModel.revealArchiveInFinder()
                 } label: {
                     Label("Reveal in Finder", systemImage: "folder")

@@ -2,6 +2,7 @@ import Foundation
 
 enum AppError: LocalizedError {
     case missingAPIKey
+    case insufficientCredits
     case badResponse(status: Int, message: String)
     case emptyImageData
     case decoding(String)
@@ -11,6 +12,8 @@ enum AppError: LocalizedError {
         switch self {
         case .missingAPIKey:
             return "No OpenRouter API key found. Add one in Settings."
+        case .insufficientCredits:
+            return "Your OpenRouter key or account is out of credits. Check your limits at openrouter.ai/credits, then try again."
         case .badResponse(let status, let message):
             return "OpenRouter request failed (HTTP \(status)): \(message)"
         case .emptyImageData:

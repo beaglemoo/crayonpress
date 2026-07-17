@@ -76,6 +76,32 @@ enum BookStore {
         try FileManager.default.removeItem(at: directory(for: book.id))
     }
 
+    /// Creates a new archived book from existing page images (copied, never
+    /// moved) - no generation cost involved.
+    @discardableResult
+    static func compose(theme: String, childName: String?, pages: [(subject: String, image: Data)]) throws -> SavedBook {
+        let spec = BookSpec(
+            theme: theme,
+            pageCount: pages.count,
+            complexity: .standard,
+            childName: childName,
+            modelID: "composed"
+        )
+        let book = SavedBook(
+            id: UUID(),
+            title: spec.title,
+            theme: theme,
+            complexity: .standard,
+            childName: childName,
+            modelID: "composed",
+            createdAt: Date(),
+            cost: 0,
+            subjects: pages.map(\.subject)
+        )
+        try write(book, images: pages.map(\.image), coverImage: nil)
+        return book
+    }
+
     /// Moves one page (image + subject) from one archived book to the end of
     /// another. Returns both books with updated metadata.
     static func movePage(at index: Int, from source: SavedBook, to target: SavedBook) throws -> (source: SavedBook, target: SavedBook) {

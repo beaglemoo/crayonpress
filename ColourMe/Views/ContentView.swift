@@ -23,6 +23,8 @@ struct ContentView: View {
                 LibraryView(viewModel: viewModel)
             case .savedBook:
                 SavedBookView(viewModel: viewModel)
+            case .composing:
+                ComposeBookView(viewModel: viewModel)
             }
         }
         .alert(

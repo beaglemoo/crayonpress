@@ -108,6 +108,11 @@ struct BookFormView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
+                            if let budget = viewModel.keyBudgetLabel {
+                                Text(budget)
+                                    .font(.caption)
+                                    .foregroundStyle(viewModel.keyBudgetLow ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+                            }
                         }
                         .frame(maxWidth: 320)
                     }
